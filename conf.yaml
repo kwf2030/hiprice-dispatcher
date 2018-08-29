@@ -1,0 +1,38 @@
+log:
+  dir: 'log'
+  level: 'info'
+
+beanstalk:
+  host: '127.0.0.1'
+  port: 11300
+  # 取任务的队列（runner抓取的结果）
+  reserve_tube: 'task_report'
+  # 取任务的超时时间（秒）
+  reserve_timeout: 0
+  # 发布任务的队列（抓取任务）
+  put_tube_task: 'task_dispatch'
+  # 发布任务的队列（消息发送）
+  put_tube_msg: 'msg_send'
+  # 发布的任务的优先级
+  put_tube_priority: 1024
+  # 发布的任务进入Ready状态的延迟时间（秒）
+  put_tube_delay: 0
+  # 发布的任务的TTR时间（秒）
+  put_tube_ttr: 21600
+
+database:
+  host: '127.0.0.1'
+  port: 3306
+  db: hiprice
+  user: root
+  password: root
+
+task:
+  # 每次任务完成后距离下次任务轮询间隔（分钟）
+  polling_interval: 2
+  # 判断商品是否需要分发的时间段（分钟），
+  # 如果商品在该时间段内分发过，则此次不再分发，
+  # 如果为0表示不检查（始终分发）
+  dispatch_duration: 360
+  # 一次任务最多数据量
+  overload: 100
