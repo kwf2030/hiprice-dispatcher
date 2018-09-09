@@ -10,12 +10,12 @@ import (
   "strings"
   "time"
 
-  "github.com/coreos/bbolt"
   "github.com/go-sql-driver/mysql"
   "github.com/kwf2030/commons/beanstalk"
   "github.com/kwf2030/commons/boltdb"
   "github.com/kwf2030/commons/times"
   "github.com/rs/zerolog"
+  "go.etcd.io/bbolt"
 )
 
 const Version = "0.1.0"
@@ -135,7 +135,7 @@ func initKV() {
 }
 
 func loadVars() {
-  kv.QueryB(bucketVar, func(b *bolt.Bucket) error {
+  kv.QueryB(bucketVar, func(b *bbolt.Bucket) error {
     v1 := b.Get(lastCheckMsgKey)
     if len(v1) > 0 {
       lastCheckMsg, _ = strconv.ParseUint(string(v1), 10, 64)
