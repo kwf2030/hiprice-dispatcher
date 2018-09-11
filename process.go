@@ -184,7 +184,7 @@ func createPushMsg(products []string) map[string][]string {
     if p.ID == "" || p.Price == NoScript || p.Price == NoValue {
       continue
     }
-    rows, e := tx.Query(`SELECT user_id, currency, price, price_low, price_high, stock, watch_time, remind_decrease_option, remind_decrease_value, remind_increase_option, remind_increase_value FROM product_watch WHERE product_id=? AND state=0`, v)
+    rows, e := tx.Query(`SELECT user_id, currency, price, price_low, price_high, stock, watch_time, remind_decrease_option, remind_decrease_value, remind_increase_option, remind_increase_value FROM product_watch WHERE product_id=? AND state=?`, v, StateWatch)
     if e != nil {
       logger.Error().Err(e).Msg("ERR: Query")
       continue
