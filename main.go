@@ -36,6 +36,8 @@ var (
 
   lastCheckProductKey = []byte("last_check_product")
   lastCheckProduct    uint64
+
+  conn *beanstalk.Conn
 )
 
 func main() {
@@ -59,6 +61,9 @@ func main() {
   defer kv.Close()
 
   loadVars()
+
+  initBeanstalk()
+  defer conn.Quit()
 
   go run()
   loopChan <- struct{}{}
@@ -149,35 +154,38 @@ func loadVars() {
   logger.Info().Msgf("last_check_msg=%d, last_check_product=%d", lastCheckMsg, lastCheckProduct)
 }
 
+func initBeanstalk() {
+  var e error
+  conn, e = beanstalk.Dial(Conf.Beanstalk.Host, Conf.Beanstalk.Port)
+  if e != nil {
+    panic(e)
+  }
+  _, e = conn.Watch(Conf.Beanstalk.ReserveTube)
+  if e != nil {
+    panic(e)
+  }
+}
+
 func run() {
   // 外层循环是定时任务
   for range loopChan {
-    conn, e := beanstalk.Dial(Conf.Beanstalk.Host, Conf.Beanstalk.Port)
-    if e != nil {
-      logger.Error().Err(e).Msg("ERR: Dial")
-      continue
-    }
     // 内层循环是一直取任务直到没有为止
     for {
-      id, task := reserveJob(conn)
+      id, task := reserveJob()
       if id == "" || task == nil || len(task.Payloads) == 0 {
         break
       }
       // 获取所有的价格较上次更新有变动的商品ID
       arr := collectChanged(task)
       if len(arr) > 0 {
-        putMsgJob(conn, arr)
+        putMsgJob(arr)
       }
-      e = conn.Delete(id)
+      e := conn.Delete(id)
       if e != nil {
         logger.Error().Err(e).Msg("ERR: Delete")
       }
     }
-    putRunnerJob(conn)
-    e = conn.Quit()
-    if e != nil {
-      logger.Error().Err(e).Msg("ERR: Quit")
-    }
+    putRunnerJob()
     scheduleNextTime()
   }
 }

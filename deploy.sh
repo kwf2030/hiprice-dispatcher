@@ -3,7 +3,7 @@
 go clean
 go build -ldflags "-w -s"
 
-target=/var/hiprice/hiprice-dispatcher/
+target=/var/hiprice/dispatcher/
 
 mkdir -p $target
 cp -f hiprice-dispatcher $target

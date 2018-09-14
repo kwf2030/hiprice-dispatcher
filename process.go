@@ -1,7 +1,6 @@
 package main
 
 import (
-  "encoding/base64"
   "encoding/json"
   "fmt"
   "math"
@@ -11,22 +10,7 @@ import (
   "github.com/kwf2030/commons/times"
 )
 
-func reserveJob(conn *beanstalk.Conn) (string, *Task) {
-  _, e := conn.Watch(Conf.Beanstalk.ReserveTube)
-  if e != nil {
-    logger.Error().Err(e).Msg("ERR: Watch")
-    return "", nil
-  }
-  e = conn.Use(Conf.Beanstalk.ReserveTube)
-  if e != nil {
-    logger.Error().Err(e).Msg("ERR: Use")
-    return "", nil
-  }
-  _, e = conn.Ignore("default")
-  if e != nil {
-    logger.Error().Err(e).Msg("ERR: Ignore")
-    return "", nil
-  }
+func reserveJob() (string, *Task) {
   id, job, e := conn.ReserveWithTimeout(Conf.Beanstalk.ReserveTimeout)
   if e != nil {
     if e != beanstalk.ErrTimedOut {
@@ -34,19 +18,13 @@ func reserveJob(conn *beanstalk.Conn) (string, *Task) {
     }
     return "", nil
   }
-  data := make([]byte, base64.RawStdEncoding.DecodedLen(len(job)))
-  _, e = base64.RawStdEncoding.Decode(data, job)
-  if e != nil {
-    logger.Error().Err(e).Msg("ERR: Decode")
-    return "", nil
-  }
   t := &Task{}
-  e = json.Unmarshal(data, t)
+  e = json.Unmarshal(job, t)
   if e != nil {
     logger.Error().Err(e).Msg("ERR: Unmarshal")
     return "", nil
   }
-  dump(fmt.Sprintf("%s/dump/%s_reserve.json", Conf.Log.Dir, t.ID), data)
+  dump(fmt.Sprintf("%s/dump/%s_reserve.json", Conf.Log.Dir, t.ID), job)
   logger.Info().Msgf("reserve job, ok, job id=%s, %d items", id, len(t.Payloads))
   return id, t
 }
@@ -137,15 +115,15 @@ func validateChanged(p *Product, price, priceLow, priceHigh float64) bool {
   return false
 }
 
-func putMsgJob(conn *beanstalk.Conn, products []string) {
-  e := conn.Use(Conf.Beanstalk.PutTubeMsg)
-  if e != nil {
-    logger.Error().Err(e).Msg("ERR: Use")
-    return
-  }
+func putMsgJob(products []string) {
   m := createPushMsg(products)
   if len(m) <= 0 {
     logger.Info().Msg("no msg to push")
+    return
+  }
+  e := conn.Use(Conf.Beanstalk.PutTubeMsg)
+  if e != nil {
+    logger.Error().Err(e).Msg("ERR: Use")
     return
   }
   // 推送消息分两种，
@@ -154,12 +132,12 @@ func putMsgJob(conn *beanstalk.Conn, products []string) {
   // {"by_user": [{"user1": ["text1", "text2"]}, {"user2": ["text3", "text4"]}], "by_text": [{"text1": ["user1", "user2"]}, {"text2": ["user3", "user4"]}]}
   ct := times.NowStrFormat(times.DateTimeFormat3)
   data, _ := json.Marshal(map[string]interface{}{"by_user": m, "create_time": ct})
+  dump(fmt.Sprintf("%s/dump/%s_msg.json", Conf.Log.Dir, ct), data)
   _, e = conn.Put(Conf.Beanstalk.PutTubePriority, Conf.Beanstalk.PutTubeDelay, Conf.Beanstalk.PutTubeTTR, data)
   if e != nil {
     logger.Error().Err(e).Msg("ERR: Put")
     return
   }
-  dump(fmt.Sprintf("%s/dump/%s_msg.json", Conf.Log.Dir, ct), data)
   logger.Info().Msg("put msg job, ok")
 }
 

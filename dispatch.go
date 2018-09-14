@@ -7,12 +7,11 @@ import (
   "strconv"
   "time"
 
-  "github.com/kwf2030/commons/beanstalk"
   "github.com/kwf2030/commons/times"
   "github.com/rs/xid"
 )
 
-func putRunnerJob(conn *beanstalk.Conn) {
+func putRunnerJob() {
   arr1 := checkMsg(Conf.Task.Overload)
   arr2 := checkProduct(Conf.Task.Overload - len(arr1))
   payloads := make([]*Payload, 0, Conf.Task.Overload)
