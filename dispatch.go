@@ -12,8 +12,6 @@ import (
   "github.com/rs/xid"
 )
 
-var uuid = xid.New()
-
 func putRunnerJob(conn *beanstalk.Conn) {
   arr1 := checkMsg(Conf.Task.Overload)
   arr2 := checkProduct(Conf.Task.Overload - len(arr1))
@@ -29,7 +27,7 @@ func putRunnerJob(conn *beanstalk.Conn) {
     return
   }
   now := times.Now()
-  tid := uuid.String()
+  tid := xid.New().String()
   t := &Task{
     ID:         tid,
     CreateTime: now,
@@ -88,7 +86,7 @@ func checkProduct(limit int) []*Payload {
   }
   tx, _ := db.Begin()
   defer tx.Rollback()
-  ret := make([]*Payload, limit)
+  ret := make([]*Payload, 0, limit)
   var stmt, dt string
   var rows, rows2 *sql.Rows
   var e error
