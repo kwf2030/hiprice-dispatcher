@@ -46,7 +46,7 @@ func reserveJob(conn *beanstalk.Conn) (string, *Task) {
     logger.Error().Err(e).Msg("ERR: Unmarshal")
     return "", nil
   }
-  dump(fmt.Sprintf("%s/dump/%s_pt.json", Conf.Log.Dir, t.ID), data)
+  dump(fmt.Sprintf("%s/dump/%s_reserve.json", Conf.Log.Dir, t.ID), data)
   logger.Info().Msgf("reserve job, ok, job id=%s, %d items", id, len(t.Payloads))
   return id, t
 }
@@ -159,7 +159,7 @@ func putMsgJob(conn *beanstalk.Conn, products []string) {
     logger.Error().Err(e).Msg("ERR: Put")
     return
   }
-  dump(fmt.Sprintf("%s/dump/%s_m.json", Conf.Log.Dir, ct), data)
+  dump(fmt.Sprintf("%s/dump/%s_msg.json", Conf.Log.Dir, ct), data)
   logger.Info().Msg("put msg job, ok")
 }
 

@@ -42,7 +42,7 @@ func putRunnerJob(conn *beanstalk.Conn) {
     return
   }
   data, _ := json.Marshal(t)
-  dump(fmt.Sprintf("%s/dump/%s_dt.json", Conf.Log.Dir, tid), data)
+  dump(fmt.Sprintf("%s/dump/%s_runner.json", Conf.Log.Dir, tid), data)
   _, e = conn.Put(Conf.Beanstalk.PutTubePriority, Conf.Beanstalk.PutTubeDelay, Conf.Beanstalk.PutTubeTTR, data)
   if e != nil {
     logger.Error().Err(e).Msg("ERR: Put")
