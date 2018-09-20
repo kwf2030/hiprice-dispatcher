@@ -1,4 +1,4 @@
-FROM golang:1.11.0-alpine3.8
+FROM golang:1.11-alpine3.8
 
 LABEL maintainer="kwf2030 <kwf2030@163.com>" \
       version="0.1.0"
