@@ -6,7 +6,9 @@ LABEL maintainer="kwf2030 <kwf2030@163.com>" \
 RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories && \
     echo "http://mirrors.aliyun.com/alpine/v3.8/community" >> /etc/apk/repositories
 
-RUN apk add --no-cache git && \
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache git && \
     mkdir -p $GOPATH/src/golang.org/x $GOPATH/src/go.etcd.io /hiprice
 
 WORKDIR $GOPATH/src/golang.org/x
