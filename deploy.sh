@@ -1,13 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
-go clean
 go build -ldflags "-w -s"
+mkdir -p /hiprice
+cp -f hiprice-dispatcher /hiprice/dispatcher
+cp -f conf.yaml /hiprice/
+go clean
 
-target=/var/hiprice/dispatcher/
-
-mkdir -p $target
-cp -f hiprice-dispatcher $target
-cp -f conf.yaml $target
-
-cd $target
-nohup ./hiprice-dispatcher > /dev/null 2>&1 &
+cd /hiprice
+nohup ./dispatcher > /dev/null 2>&1 &
