@@ -17,7 +17,7 @@ RUN git clone https://github.com/golang/net.git
 
 WORKDIR $GOPATH/src/go.etcd.io
 
-RUN git clone https://github.com/etcd-io/bbolt
+RUN git clone https://github.com/etcd-io/bbolt.git
 
 RUN go get github.com/kwf2030/hiprice-dispatcher
 
