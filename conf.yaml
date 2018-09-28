@@ -3,7 +3,7 @@ log:
   level: 'info'
 
 beanstalk:
-  host: '127.0.0.1'
+  host: 'beanstalk'
   port: 11300
   # 取任务的队列（runner抓取的结果）
   reserve_tube: 'task_report'
@@ -21,7 +21,7 @@ beanstalk:
   put_tube_ttr: 21600
 
 database:
-  host: '127.0.0.1'
+  host: 'mariadb'
   port: 3306
   db: hiprice
   user: root
