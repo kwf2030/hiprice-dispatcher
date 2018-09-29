@@ -9,4 +9,4 @@ docker pull wf2030/hiprice-dispatcher:0.1.0
 ```
 
 ## Run
-`docker run -d --name hiprice-dispatcher hiprice-dispatcher`
+`docker run -d --name hiprice-dispatcher --link mariadb:mariadb --link beanstalk:beanstalk hiprice-dispatcher`
