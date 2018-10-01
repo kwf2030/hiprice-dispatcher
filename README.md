@@ -1,6 +1,7 @@
 # hiprice-dispatcher
+Dispatcher for HiPrice.
 
-## Build
+## Build Docker Image
 ```
 docker build -f Dockerfile -t hiprice-dispatcher .
 
@@ -8,5 +9,5 @@ docker build -f Dockerfile -t hiprice-dispatcher .
 docker pull wf2030/hiprice-dispatcher:0.1.0
 ```
 
-## Run
+## Run In Docker
 `docker run -d --name hiprice-dispatcher --link mariadb:mariadb --link beanstalk:beanstalk hiprice-dispatcher`
