@@ -65,8 +65,11 @@ func collectChanged(t *Task) []string {
     var stock int
     tx.QueryRow(`SELECT price, price_low, price_high, stock FROM product_update WHERE id=? ORDER BY update_time DESC LIMIT 1`, p.ID).Scan(&price, &priceLow, &priceHigh, &stock)
     if validateChanged(p, price, priceLow, priceHigh) {
-      // 记录下有变动的productID
-      ret = append(ret, p.ID)
+      // 记录价格有变动的productID，如果price是NoValue说明是新数据，不算价格变动
+      if price != NoValue {
+        ret = append(ret, p.ID)
+      }
+
       // 新增price_update记录
       var comments string
       if p.Comments.Total > 0 {
@@ -103,6 +106,10 @@ func collectChanged(t *Task) []string {
 
 // price/price_low/price_high任一字段变动
 func validateChanged(p *Product, price, priceLow, priceHigh float64) bool {
+  // 如果price是NoValue，说明没有查到更新记录，需要插入到product和product_update表
+  if price == NoValue {
+    return true
+  }
   if price == RangePrice && p.Price == RangePrice {
     if priceLow < 0 || priceHigh < 0 || p.PriceLow < 0 || p.PriceHigh < 0 {
       return false
