@@ -125,8 +125,14 @@ func initDB() {
     var e error
     db, e = sql.Open("mysql", c.FormatDSN())
     if e != nil {
-      logger.Info().Msg("database connect failed, will retry 30 seconds later")
+      logger.Error().Err(e).Msg("database connect failed, will retry 30 seconds later")
       time.Sleep(time.Second * 30)
+      continue
+    }
+    e = db.Ping()
+    if e != nil {
+      logger.Error().Err(e).Msg("database ping failed, will retry 10 seconds later")
+      time.Sleep(time.Second * 10)
       continue
     }
     break
@@ -160,8 +166,8 @@ func loadVars() {
 }
 
 func initBeanstalk() {
-  var e error
   for i := 0; i < 3; i++ {
+    var e error
     conn, e = beanstalk.Dial(Conf.Beanstalk.Host, Conf.Beanstalk.Port)
     if e != nil {
       logger.Info().Msg("beanstalk connect failed, will retry 30 seconds later")
