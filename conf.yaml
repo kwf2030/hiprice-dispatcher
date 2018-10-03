@@ -23,9 +23,9 @@ beanstalk:
 database:
   host: 'mariadb'
   port: 3306
-  db: hiprice
-  user: root
-  password: root
+  db: 'hiprice'
+  user: 'root'
+  password: 'root'
 
 task:
   # 每次任务完成后距离下次任务轮询间隔（分钟）
