@@ -1,32 +1,27 @@
 FROM golang:1.11-alpine3.8
 
 LABEL maintainer="kwf2030 <kwf2030@163.com>" \
-      version=0.1.0
+      version=1.0.1
 
 RUN echo http://mirrors.aliyun.com/alpine/v3.8/main > /etc/apk/repositories && \
     echo http://mirrors.aliyun.com/alpine/v3.8/community >> /etc/apk/repositories
 
 RUN apk update && \
     apk add --no-cache git && \
-    mkdir -p $GOPATH/src/golang.org/x $GOPATH/src/go.etcd.io /hiprice
-
-WORKDIR $GOPATH/src/golang.org/x
-
-RUN git clone https://github.com/golang/net.git
-
-WORKDIR $GOPATH/src/go.etcd.io
-
-RUN git clone https://github.com/etcd-io/bbolt.git
-
-RUN go get github.com/kwf2030/hiprice-dispatcher
-
-WORKDIR $GOPATH/src/github.com/kwf2030/hiprice-dispatcher
-
-RUN go build -ldflags "-w -s" && \
-    cp hiprice-dispatcher /hiprice/dispatcher && \
-    cp conf.yaml /hiprice/ && \
-    go clean
+    mkdir -p /hiprice/bin
 
 WORKDIR /hiprice
+
+RUN git clone https://github.com/kwf2030/hiprice-dispatcher.git src
+
+WORKDIR /hiprice/src
+
+RUN git checkout -b b1.0.1 v1.0.1 && \
+    go build -ldflags "-w -s" && \
+    cp hiprice-dispatcher ../bin/dispatcher && \
+    cp conf.yaml ../bin/ && \
+    go clean
+
+WORKDIR /hiprice/bin
 
 ENTRYPOINT ["./dispatcher"]
